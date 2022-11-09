@@ -121,7 +121,7 @@ const UsersPage = () => {
                 />
               </td>
               <td
-                className="user-email"
+                className="user-email clickable"
                 onClick={() => {
                   navigate(`/users/${user.email}`);
                 }}
@@ -129,6 +129,7 @@ const UsersPage = () => {
                 {user.email}
               </td>
               <td
+                className="clickable"
                 onClick={() => {
                   navigate(`/users/${user.email}`);
                 }}
@@ -136,6 +137,7 @@ const UsersPage = () => {
                 {user.name}
               </td>
               <td
+                className="clickable"
                 onClick={() => {
                   navigate(`/users/${user.email}`);
                 }}

@@ -75,6 +75,12 @@ export const Wrapper = styled.div`
     color: #333;
   }
 
+  .clickable {
+    &:hover {
+      cursor: pointer;
+    }
+  }
+
   .checkbox-container {
     height: 45px;
     display: flex;
