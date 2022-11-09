@@ -1,7 +1,7 @@
 // Node Modules
 import React from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { map } from 'lodash';
 // Relative Imports
 import { Wrapper } from './styles.js';
@@ -16,12 +16,9 @@ const ROLE_ENUM = {
 };
 
 const EditUserPage = () => {
-  // create state
+  // create state and set up hooks
   const [name, setName] = React.useState('');
   const [role, setRole] = React.useState('');
-
-  // use navigate to redirect to the users page after save
-  const navigate = useNavigate();
 
   // fetch email from url for query
   const { email } = useParams();
@@ -35,14 +32,13 @@ const EditUserPage = () => {
   } = useQuery(GET_USER_QUERY, {
     variables: { email },
     fetchPolicy: 'network-only',
-  });
-
-  // save the user info then redirect to the users page
-  const [updateUser] = useMutation(UPDATE_USER_MUTATION, {
     onCompleted: () => {
-      navigate('/users');
+      setName(data.user.name);
     },
   });
+
+  // save the user info
+  const [updateUser, { loading: updateInFlight }] = useMutation(UPDATE_USER_MUTATION);
 
   // this function is used to take care of the hand off between data and local state on load
   const deriveChecked = (roleEnum) => {
@@ -53,7 +49,7 @@ const EditUserPage = () => {
   };
 
   // loading handler, replace with something fancy
-  if (loading) {
+  if (loading || updateInFlight) {
     return <p>Loading...</p>;
   }
 
@@ -75,8 +71,8 @@ const EditUserPage = () => {
               variables: {
                 email,
                 newAttributes: {
-                  name: name || data.user.name,
-                  role: role || data.user.name,
+                  name: name !== '' ? name : data.user.name,
+                  role: role !== '' ? role : data.user.role,
                 },
               },
             });
@@ -101,9 +97,8 @@ const EditUserPage = () => {
             type="text"
             className="name-input"
             id="name-input"
-            value={name || data.user.name}
+            value={name}
             onChange={(event) => {
-              console.log('2 did it');
               setName(event.target.value);
             }}
           />

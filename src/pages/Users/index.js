@@ -27,11 +27,9 @@ const deriveRole = (role) => {
 };
 
 const UsersPage = () => {
-  // hooks and state
-  const navigate = useNavigate();
-
   // create a state variable to hold emails of users to delete
   const [usersToDelete, setUsersToDelete] = React.useState([]);
+  const navigate = useNavigate();
 
   // get all users query, notifying on refetch so we can show the loading state
   const {
@@ -123,7 +121,7 @@ const UsersPage = () => {
               <td
                 className="user-email clickable"
                 onClick={() => {
-                  navigate(`/users/${user.email}`);
+                  navigate(`/users/${user.email}`, { state: undefined });
                 }}
               >
                 {user.email}
@@ -131,7 +129,7 @@ const UsersPage = () => {
               <td
                 className="clickable"
                 onClick={() => {
-                  navigate(`/users/${user.email}`);
+                  navigate(`/users/${user.email}`, { state: undefined });
                 }}
               >
                 {user.name}
@@ -139,7 +137,7 @@ const UsersPage = () => {
               <td
                 className="clickable"
                 onClick={() => {
-                  navigate(`/users/${user.email}`);
+                  navigate(`/users/${user.email}`, { state: undefined });
                 }}
               >
                 {deriveRole(user.role)}

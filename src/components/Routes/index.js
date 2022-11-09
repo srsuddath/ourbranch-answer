@@ -11,6 +11,7 @@ const CustomRouter = () => {
   return (
     <BrowserRouter>
       <main>
+        {/* this is where a header would go */}
         <div className="page">
           <Routes>
             <Route path="/users" exact element={<Users />} />
