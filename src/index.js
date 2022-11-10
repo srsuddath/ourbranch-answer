@@ -20,11 +20,9 @@ const client = new ApolloClient({
 });
 
 const Root = () => (
-  <React.StrictMode>
-    <ApolloProvider client={client}>
-      <CustomRouter />
-    </ApolloProvider>
-  </React.StrictMode>
+  <ApolloProvider client={client}>
+    <CustomRouter />
+  </ApolloProvider>
 );
 
 ReactDOM.render(<Root />, document.getElementById('root'));

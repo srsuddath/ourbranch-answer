@@ -6,25 +6,7 @@ import { useNavigate } from 'react-router-dom';
 // Relative Imports
 import { ALL_USERS_QUERY, DELETE_USERS_MUTATION, RESET_USERS_MUTATION } from './queries.js';
 import { Wrapper } from './styles.js';
-
-// helper function to derive role labels for table
-const deriveRole = (role) => {
-  if (role === 'ADMIN') {
-    return 'Admin';
-  }
-  if (role === 'DEVELOPER') {
-    return 'Developer';
-  }
-  if (role === 'APP_MANAGER') {
-    return 'App Manager';
-  }
-  if (role === 'MARKETING') {
-    return 'Marketing';
-  }
-  if (role === 'SALES') {
-    return 'Sales';
-  }
-};
+import { ROLE_ENUM } from '../../utils/constants';
 
 const UsersPage = () => {
   // create a state variable to hold emails of users to delete
@@ -43,18 +25,10 @@ const UsersPage = () => {
   });
 
   // delete a users mutation, using array of emails to select users, on completion, refetch data
-  const [deleteUsers, { loading: deleteLoading }] = useMutation(DELETE_USERS_MUTATION, {
-    onCompleted: () => {
-      refetch();
-    },
-  });
+  const [deleteUsers, { loading: deleteLoading }] = useMutation(DELETE_USERS_MUTATION);
 
   // reset users mutation, leaving this button / query here so the demo is fully functional
-  const [resetUsers, { loading: resetLoading }] = useMutation(RESET_USERS_MUTATION, {
-    onCompleted: () => {
-      refetch();
-    },
-  });
+  const [resetUsers, { loading: resetLoading }] = useMutation(RESET_USERS_MUTATION);
 
   // function to handle toggling of checkboxes / storing emails in state
   const toggleUserCheckbox = (email) => (event) => {
@@ -86,8 +60,10 @@ const UsersPage = () => {
           disabled={!usersToDelete.length > 0}
           className={`delete-button ${usersToDelete.length > 0 ? 'active' : ''}`}
           onClick={() => {
-            deleteUsers({ variables: { emails: usersToDelete } });
             setUsersToDelete([]);
+            deleteUsers({ variables: { emails: usersToDelete } }).then(() => {
+              refetch();
+            });
           }}
         >
           Delete
@@ -115,13 +91,12 @@ const UsersPage = () => {
                   type="checkbox"
                   className="checkbox"
                   onChange={toggleUserCheckbox(user.email)}
-                  checked={usersToDelete.includes(user.email)}
                 />
               </td>
               <td
                 className="user-email clickable"
                 onClick={() => {
-                  navigate(`/users/${user.email}`, { state: undefined });
+                  navigate(`/users/${user.email}`);
                 }}
               >
                 {user.email}
@@ -129,7 +104,7 @@ const UsersPage = () => {
               <td
                 className="clickable"
                 onClick={() => {
-                  navigate(`/users/${user.email}`, { state: undefined });
+                  navigate(`/users/${user.email}`);
                 }}
               >
                 {user.name}
@@ -137,10 +112,10 @@ const UsersPage = () => {
               <td
                 className="clickable"
                 onClick={() => {
-                  navigate(`/users/${user.email}`, { state: undefined });
+                  navigate(`/users/${user.email}`);
                 }}
               >
-                {deriveRole(user.role)}
+                {ROLE_ENUM[user.role].label}
               </td>
             </tr>
           ))}
@@ -152,8 +127,8 @@ const UsersPage = () => {
         type="button"
         className="reset-button"
         onClick={() => {
-          resetUsers();
           setUsersToDelete([]);
+          resetUsers().then(refetch);
         }}
       >
         Reset All Data

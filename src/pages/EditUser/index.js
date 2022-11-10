@@ -1,19 +1,12 @@
 // Node Modules
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import { Link, useParams } from 'react-router-dom';
 import { map } from 'lodash';
 // Relative Imports
 import { Wrapper } from './styles.js';
 import { GET_USER_QUERY, UPDATE_USER_MUTATION } from './queries.js';
-
-const ROLE_ENUM = {
-  ADMIN: { label: 'Admin', value: 'ADMIN' },
-  DEVELOPER: { label: 'Developer', value: 'DEVELOPER' },
-  APP_MANAGER: { label: 'App Manager', value: 'APP_MANAGER' },
-  MARKETING: { label: 'Marketing', value: 'MARKETING' },
-  SALES: { label: 'Sales', value: 'SALES' },
-};
+import { ROLE_ENUM } from '../../utils/constants';
 
 const EditUserPage = () => {
   // create state and set up hooks
@@ -25,28 +18,21 @@ const EditUserPage = () => {
 
   /* create our get user query, setting a default value and using a network only
    fetch policy to prevent issues loading the page repeatedly after saves */
-  const {
-    loading,
-    error,
-    data = { user: {} },
-  } = useQuery(GET_USER_QUERY, {
+  const { loading, error, data } = useQuery(GET_USER_QUERY, {
     variables: { email },
     fetchPolicy: 'network-only',
-    onCompleted: () => {
-      setName(data.user.name);
-    },
   });
+
+  // hook to set state variables on data fetch
+  useEffect(() => {
+    if (!loading) {
+      setName(data.user.name);
+      setRole(data.user.role);
+    }
+  }, [data, loading]);
 
   // save the user info
   const [updateUser, { loading: updateInFlight }] = useMutation(UPDATE_USER_MUTATION);
-
-  // this function is used to take care of the hand off between data and local state on load
-  const deriveChecked = (roleEnum) => {
-    if (role) {
-      return roleEnum === role;
-    }
-    return roleEnum === data.user.role;
-  };
 
   // loading handler, replace with something fancy
   if (loading || updateInFlight) {
@@ -55,7 +41,7 @@ const EditUserPage = () => {
 
   // error handler, replace with something fancy
   if (error) {
-    return <p>Error: {JSON.stringify(data)}</p>;
+    return <p>Error: {JSON.stringify(error)}</p>;
   }
 
   return (
@@ -71,8 +57,8 @@ const EditUserPage = () => {
               variables: {
                 email,
                 newAttributes: {
-                  name: name !== '' ? name : data.user.name,
-                  role: role !== '' ? role : data.user.role,
+                  name: name,
+                  role: role,
                 },
               },
             });
@@ -117,7 +103,7 @@ const EditUserPage = () => {
                   name="role"
                   id={`${roleEnum.value}-radio`}
                   value={roleEnum.value}
-                  checked={deriveChecked(roleEnum.value)}
+                  checked={roleEnum.value === role}
                   onChange={() => {
                     setRole(roleEnum.value);
                   }}
